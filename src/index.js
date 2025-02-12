@@ -62,6 +62,8 @@ function handleEditFormSubmit (evt) {
 
 profileEditButton.addEventListener("click", function () {
   openPopup(editWindow);
+  editNameInput.value = profileTitle.textContent;
+  editDescriptionInput.value = profileDescription.textContent;
 });
 
 //работаем с формой добавления карточки

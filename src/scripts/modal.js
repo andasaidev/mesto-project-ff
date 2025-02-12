@@ -1,16 +1,16 @@
 //открываем окно
 export function openPopup (popup) {
   popup.classList.add("popup_is-opened");
-  document.addEventListener("keydown", escFrom);
+  document.addEventListener("keydown", closePopupByEscape);
 };
 //функция на escape
-function escFrom (evt) {
+function closePopupByEscape (evt) {
   if (evt.key === 'Escape') {
-    closePopup(popup)
+    closePopup(document.querySelector('.popup_is-opened'));
   }
 };
 //закрываем окно
 export function closePopup (popup) {
   popup.classList.remove("popup_is-opened");
-  document.removeEventListener("keydown", escFrom);
+  document.removeEventListener("keydown", closePopupByEscape);
 };
