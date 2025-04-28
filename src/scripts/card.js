@@ -1,5 +1,5 @@
 //клонируем шаблон карточки, добавляем в нее изображение и описание. определяем кнопку удаления карточки, устанавливаем слушатель на кнопку.
-
+import { getCardTemplate } from "./utilits";
 import { addlikeCard, deleteLikeCard, deleteCard } from "./api";
 
 export function createCard(
@@ -7,8 +7,7 @@ export function createCard(
   { deleteCard, likeCard, showCard },
   currentUserId
 ) {
-  const cardTemplate = document.querySelector("#card-template").content;
-  const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
+  const cardElement = getCardTemplate();
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
   const likeCounter = cardElement.querySelector(".card__like-counter");
@@ -28,7 +27,12 @@ export function createCard(
     likeCounter.textContent = 0;
   }
 
-  if (cardData.owner && cardData.owner._id === currentUserId) {
+  const isLiked = cardData.likes && cardData.likes.some(like => like._id === currentUserId);
+  if (isLiked) {
+    likeButton.classList.add("card__like-button_is-active")
+  }
+  const isCardOwner = cardData.owner && cardData.owner._id === currentUserId;
+  if (isCardOwner) {
     deleteButton.style.display = "block";
     deleteButton.addEventListener("click", function () {
       deleteCard(cardElement, cardData._id);

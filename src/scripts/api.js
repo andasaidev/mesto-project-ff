@@ -31,13 +31,13 @@ function getInitialCards() {
 }
 
 //PATCH. Редактирование профиля
-function editProfile() {
+function editProfile(name, about) {
   return fetch(`${apiConfig.baseUrl}/users/me`, {
     method: "PATCH",
     headers: apiConfig.headers,
     body: JSON.stringify({
-      name: `${userName}`,
-      about: `${userDescription}`,
+      name: `${name}`,
+      about: `${about}`,
     }),
   }).then(getErrorMessage);
 }
@@ -83,7 +83,7 @@ function updateAvatar(_id) {
     method: "PATCH",
     headers: apiConfig.headers,
     body: JSON.stringify({
-      avatar: `${avatarLink}`,
+      avatar: `${avatar}`,
     }),
   }).then(getErrorMessage);
 }

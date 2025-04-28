@@ -1,7 +1,6 @@
 //импорт стилей и функций js
 import "./pages/index.css";
 
-//import { initialCards } from './scripts/cards.js';
 import {
   createCard,
   handleDeleteCard,
@@ -20,6 +19,7 @@ import {
   addInitialCards,
   updateAvatar,
 } from "./scripts/api.js";
+import {setButtonLoading} from "./scripts/utilits.js"
 
 //поиск карточек и модальных окон
 const cardContainer = document.querySelector(".places__list");
@@ -54,17 +54,6 @@ const addButton = document.querySelector(".profile__add-button");
 const avatarEditButton = document.querySelector(".profile__avatar-edit");
 
 let currentUserId = null;
-
-//функция загрузки кнопки
-function setButtonLoading(button, isSaving) {
-  if (isSaving) {
-    button.textContent = "Сохранение...";
-    button.disabled = true;
-  } else {
-    button.textContent = "Сохранить";
-    button.disabled = false;
-  }
-}
 
 //загрузка данных о пользователе+карточки
 Promise.all([getUserProfile(), getInitialCards()])
@@ -121,8 +110,8 @@ function handleEditFormSubmit(evt) {
 
   editProfile(editNameInput.value, editDescriptionInput.value)
     .then((userData) => {
-      profileTitle.textContent = userData.value;
-      profileDescription.textContent = userData.value;
+      profileTitle.textContent = userData.name;
+      profileDescription.textContent = userData.about;
       closePopup(editWindow);
     })
     .catch((err) => {
@@ -148,6 +137,8 @@ function handleCardFormSubmit(evt) {
 
   addInitialCards(cardNameInput.value, cardUrlInput.value)
     .then((newCard) => {
+      clearValidation(cardForm, validationConfig);
+      newCard.owner = { _id: currentUserId };
       cardContainer.prepend(
         createCard(
           newCard,
@@ -172,7 +163,6 @@ function handleCardFormSubmit(evt) {
 
 addButton.addEventListener("click", function () {
   openPopup(cardWindow);
-  clearValidation(cardForm, validationConfig);
 });
 
 avatarEditButton.addEventListener("click", function () {
