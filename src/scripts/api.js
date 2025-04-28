@@ -78,7 +78,7 @@ function deleteCard(_id) {
   }).then(getErrorMessage);
 }
 
-function updateAvatar(_id) {
+function updateAvatar(avatarUrl) {
   return fetch(`${apiConfig.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: apiConfig.headers,
