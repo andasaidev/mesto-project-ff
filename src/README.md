@@ -1,3 +1,6 @@
 # Проектная работа Mesto
-ссылка на работу:
+Ссылка на работу github:
 https://github.com/andasaidev/mesto-project-ff.git
+
+Ссылка на проект на сервере: 
+https://andasaidev.github.io/mesto-project-ff/
