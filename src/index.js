@@ -35,7 +35,7 @@ const profileDescription = document.querySelector(".profile__description");
 
 //работа с аватаром
 const avatarPopup = document.querySelector(".popup_type_avatar");
-const avatarForm = document.forms("avatar-form");
+const avatarForm = avatarPopup.querySelector(".popup__form");
 const avatarUrlInput = document.querySelector(".popup__input_type_avatar-url");
 const profileImage = document.querySelector(".profile__image");
 
