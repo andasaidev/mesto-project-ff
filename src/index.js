@@ -1,9 +1,25 @@
 //импорт стилей и функций js
-import './pages/index.css';
+import "./pages/index.css";
 
-import { initialCards } from './scripts/cards.js'; 
-import { createCard, handleDeleteCard, handleLikeCard } from './scripts/card.js';
-import { openPopup, closePopup } from './scripts/modal.js';
+//import { initialCards } from './scripts/cards.js';
+import {
+  createCard,
+  handleDeleteCard,
+  handleLikeCard,
+} from "./scripts/card.js";
+import { openPopup, closePopup } from "./scripts/modal.js";
+import {
+  validationConfig,
+  enableValidation,
+  clearValidation,
+} from "./scripts/validation.js";
+import {
+  getUserProfile,
+  getInitialCards,
+  editProfile,
+  addInitialCards,
+  updateAvatar,
+} from "./scripts/api.js";
 
 //поиск карточек и модальных окон
 const cardContainer = document.querySelector(".places__list");
@@ -17,6 +33,12 @@ const editDescriptionInput = document.querySelector(".popup__input_type_descript
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 
+//работа с аватаром
+const avatarPopup = document.querySelector(".popup_type_avatar");
+const avatarForm = avatarPopup.querySelector(".popup__form");
+const avatarUrlInput = avatarPopup.querySelector(".popup__input-avatar-url");
+const profileImage = document.querySelector(".profile__image");
+
 //окно и формы добавления карточек
 const cardWindow = document.querySelector(".popup_type_new-card");
 const cardForm = cardWindow.querySelector(".popup__form");
@@ -29,7 +51,44 @@ const imageCaption = document.querySelector(".popup__caption");
 //кнопки
 const profileEditButton = document.querySelector(".profile__edit-button");
 const addButton = document.querySelector(".profile__add-button");
+const avatarEditButton = document.querySelector(".profile__avatar-edit");
 
+let currentUserId = null;
+
+//функция загрузки кнопки
+function setButtonLoading(button, isSaving) {
+  if (isSaving) {
+    button.textContent = "Сохранение...";
+    button.disabled = true;
+  } else {
+    button.textContent = "Сохранить";
+    button.disabled = false;
+  }
+}
+
+//загрузка данных о пользователе+карточки
+Promise.all([getUserProfile(), getInitialCards()])
+  .then(([userData, cards]) => {
+    profileTitle.textContent = userData.name;
+    profileDescription.textContent = userData.about;
+
+    cards.forEach((cardData) => {
+      cardContainer.append(
+        createCard(
+          cardData,
+          {
+            showCard: handleShowCard,
+            deleteCard: handleDeleteCard,
+            likeCard: handleLikeCard,
+          },
+          userData._id
+        )
+      );
+    });
+  })
+  .catch((err) => {
+    console.log("Ошибка в загрузке данных: ", err);
+  });
 
 //присваиваем анимацию, функции закрытия и открытия карточке
 popupWindows.forEach((popup) => {
@@ -45,67 +104,100 @@ popupWindows.forEach((popup) => {
 });
 
 //функция открытия карточки с изображением
-function handleShowCard ( cardData ){
+function handleShowCard(cardData) {
   imagePopup.src = cardData.link;
   imagePopup.alt = cardData.name;
   imageCaption.textContent = cardData.name;
   openPopup(cardPopup);
-};
+}
+
+enableValidation(validationConfig);
 
 //работа с формой редактирования профиля
-function handleEditFormSubmit (evt) {
+function handleEditFormSubmit(evt) {
   evt.preventDefault();
-  profileTitle.textContent = editNameInput.value;
-  profileDescription.textContent = editDescriptionInput.value;
-  closePopup(editWindow);
-};
+  const submitButton = evt.target.querySelector(".popup__button");
+  setButtonLoading(submitButton, true);
+
+  editProfile(editNameInput.value, editDescriptionInput.value)
+    .then((userData) => {
+      profileTitle.textContent = userData.value;
+      profileDescription.textContent = userData.value;
+      closePopup(editWindow);
+    })
+    .catch((err) => {
+      console.log("Ошибка обновления профиля: ", err);
+    })
+    .finally(() => {
+      setButtonLoading(submitButton, false);
+    });
+}
 
 profileEditButton.addEventListener("click", function () {
   openPopup(editWindow);
+  clearValidation(editForm, validationConfig);
   editNameInput.value = profileTitle.textContent;
   editDescriptionInput.value = profileDescription.textContent;
 });
 
 //работаем с формой добавления карточки
-function handleCardFormSubmit (evt) {
-  evt.preventDefault(); 
-  cardContainer.prepend(
-    createCard(
-      { name: cardNameInput.value,
-        link: cardUrlInput.value,
-      },
-      {
-        showCard: handleShowCard,
-        deleteCard: handleDeleteCard,
-        likeCard: handleLikeCard,
-      }
-    )
-  );
-  closePopup(cardWindow);
-  editForm.reset();
-};
+function handleCardFormSubmit(evt) {
+  evt.preventDefault();
+  const submitButton = evt.target.querySelector(".popup__button");
+  setButtonLoading(submitButton, true);
+
+  addInitialCards(cardNameInput.value, cardUrlInput.value)
+    .then((newCard) => {
+      cardContainer.prepend(
+        createCard(
+          newCard,
+          {
+            showCard: handleShowCard,
+            deleteCard: handleDeleteCard,
+            likeCard: handleLikeCard,
+          },
+          currentUserId
+        )
+      );
+      closePopup(cardWindow);
+      cardForm.reset();
+    })
+    .catch((err) => {
+      console.log("Ошибка добавления карточки: ", err);
+    })
+    .finally(() => {
+      setButtonLoading(submitButton, false);
+    });
+}
 
 addButton.addEventListener("click", function () {
   openPopup(cardWindow);
+  clearValidation(cardForm, validationConfig);
+});
+
+avatarEditButton.addEventListener("click", function () {
+  openPopup(avatarPopup);
+  clearValidation(avatarForm, validationConfig);
+});
+
+avatarForm.addEventListener("submit", function (evt) {
+  evt.preventDefault();
+  const submitButton = evt.target.querySelector(".popup__button");
+  setButtonLoading(submitButton, true);
+
+  updateAvatar(avatarUrlInput.value)
+    .then((userData) => {
+      profileImage.style.backgroundImage = `url(${userData.avatar})`;
+      closePopup(avatarPopup);
+      avatarForm.reset();
+    })
+    .catch((err) => {
+      console.log("Ошибка обновления: ", err);
+    })
+    .finally(() => {
+      setButtonLoading(submitButton, false);
+    });
 });
 
 editForm.addEventListener("submit", handleEditFormSubmit);
 cardForm.addEventListener("submit", handleCardFormSubmit);
-
-//содержимое карточки с импортированным массивом и функциями открытия, закрытия и лайка
-initialCards.forEach((cardData) => {
-  cardContainer.append (
-    createCard(cardData, {
-      showCard: handleShowCard,
-      deleteCard: handleDeleteCard,
-      likeCard: handleLikeCard,
- }));
-});
-
-
-
-
-
-
-
-

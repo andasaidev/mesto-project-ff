@@ -13,3 +13,17 @@
   position: relative;
   overflow: hidden;
 }
+
+.card__like {
+  gap: 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card__like-counter {
+  font-size: 13px;
+  text-align: center;
+  color: #000;
+  font-family: 'Inter', Arial, sans-serif;
+}
