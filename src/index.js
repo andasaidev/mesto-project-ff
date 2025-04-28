@@ -35,8 +35,8 @@ const profileDescription = document.querySelector(".profile__description");
 
 //работа с аватаром
 const avatarPopup = document.querySelector(".popup_type_avatar");
-const avatarForm = avatarPopup.querySelector(".popup__form");
-const avatarUrlInput = avatarPopup.querySelector(".popup__input-avatar-url");
+const avatarForm = document.forms("avatar-form");
+const avatarUrlInput = document.querySelector(".popup__input_type_avatar-url");
 const profileImage = document.querySelector(".profile__image");
 
 //окно и формы добавления карточек
@@ -78,6 +78,8 @@ Promise.all([getUserProfile(), getInitialCards()])
   .catch((err) => {
     console.log("Ошибка в загрузке данных: ", err);
   });
+
+ 
 
 //присваиваем анимацию, функции закрытия и открытия карточке
 popupWindows.forEach((popup) => {
@@ -169,6 +171,7 @@ avatarEditButton.addEventListener("click", function () {
   openPopup(avatarPopup);
   clearValidation(avatarForm, validationConfig);
 });
+
 
 avatarForm.addEventListener("submit", function (evt) {
   evt.preventDefault();

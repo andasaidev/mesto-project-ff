@@ -83,7 +83,7 @@ function updateAvatar(_id) {
     method: "PATCH",
     headers: apiConfig.headers,
     body: JSON.stringify({
-      avatar: `${avatar}`,
+      avatar: avatarUrl,
     }),
   }).then(getErrorMessage);
 }
