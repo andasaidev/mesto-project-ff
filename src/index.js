@@ -58,6 +58,10 @@ let currentUserId = null;
 //загрузка данных о пользователе+карточки
 Promise.all([getUserProfile(), getInitialCards()])
   .then(([userData, cards]) => {
+    currentUserId = userData._id;
+    if(userData.avatar) {
+      document.querySelector(".profile__image").style.backgroundImage = `url(${userData.avatar})`
+    }
     profileTitle.textContent = userData.name;
     profileDescription.textContent = userData.about;
 
